@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  HandlerKey:
+    Type: String
+  BucketName:
+    Type: String
+  Tier:
+    Type: String
+
+Resources:
+  LambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: !Sub 'lambda.MedicationServiceHandler::handleRequest'
+      Role: !GetAtt
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref HandlerKey
+      Runtime: java8
+      MemorySize: 256
+      Timeout: 50
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+              
